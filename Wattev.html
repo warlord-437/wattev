@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wattev">
+<title>Wattev - EV Charging Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0f;--bg2:#14141e;--bg3:#1a1a25;--bg4:#22222e;--border:#22222e;--border2:#2a2a38;--text:#fff;--text2:#94a3b8;--text3:#64748b;--accent:#00d4aa;--accent-rgb:0,212,170;--warn:#f59e0b;--danger:#ef4444;--r:12px;--t:.2s;--charge-color:245,158,11;--sp-xs:4px;--sp-sm:8px;--sp-md:12px;--sp-lg:16px;--sp-xl:20px;--sp-2xl:24px;--sp-3xl:32px}
+[data-accent="blue"]{--accent:#3b82f6;--accent-rgb:59,130,246}
+[data-accent="purple"]{--accent:#8b5cf6;--accent-rgb:139,92,246}
+[data-accent="pink"]{--accent:#ec4899;--accent-rgb:236,72,153}
+[data-accent="orange"]{--accent:#f97316;--accent-rgb:249,115,22}
+[data-accent="cyan"]{--accent:#06b6d4;--accent-rgb:6,182,212}
+[data-accent="red"]{--accent:#ef4444;--accent-rgb:239,68,68}
+[data-accent="yellow"]{--accent:#eab308;--accent-rgb:234,179,8}
+[data-accent="lime"]{--accent:#84cc16;--accent-rgb:132,204,22}
+[data-accent="teal"]{--accent:#14b8a6;--accent-rgb:20,184,166}
+[data-accent="indigo"]{--accent:#6366f1;--accent-rgb:99,102,241}
+[data-accent="rose"]{--accent:#f43f5e;--accent-rgb:244,63,94}
+[data-accent="emerald"]{--accent:#10b981;--accent-rgb:16,185,129}
+[data-accent="violet"]{--accent:#7c3aed;--accent-rgb:124,58,237}
+[data-accent="sky"]{--accent:#0ea5e9;--accent-rgb:14,165,233}
+[data-accent="fuchsia"]{--accent:#d946ef;--accent-rgb:217,70,239}
+[data-accent="amber"]{--accent:#f59e0b;--accent-rgb:245,158,11}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+.bg-grad{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.15;animation:float 25s ease-in-out infinite}
+.bg-orb:first-child{width:500px;height:500px;background:rgb(var(--charge-color));top:-250px;right:-150px}
+.bg-orb:nth-child(2){width:400px;height:400px;background:var(--accent);bottom:-200px;left:-150px;animation-delay:-8s}
+.bg-orb:last-child{width:300px;height:300px;background:rgb(var(--charge-color));top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-15s;opacity:.08}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-30px) scale(1.05)}50%{transform:translate(-20px,20px) scale(0.95)}75%{transform:translate(20px,30px) scale(1.02)}}
+.icon{width:24px;height:24px;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none;flex-shrink:0}
+.icon.sm{width:18px;height:18px}.icon.lg{width:28px;height:28px}.icon.xs{width:14px;height:14px}
+.app{max-width:480px;margin:0 auto;padding:20px;padding-bottom:32px}
+.header{text-align:center;padding:24px 0 32px;position:relative}
+.user-btn{position:absolute;top:16px;right:0;width:44px;height:44px;background:rgba(20,20,30,.7);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:50%;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.user-btn:hover{background:var(--bg4);color:var(--accent);border-color:var(--accent)}
+.logo-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:12px}
+.logo-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.7));border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(var(--accent-rgb),.3)}
+.logo-icon svg{width:32px;height:32px;color:#fff}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tagline{font-size:.875rem;color:var(--text3)}
+.card{background:rgba(20,20,30,.7);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:24px;position:relative}
+.card-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5}
+.section-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.section-icon{width:40px;height:40px;background:var(--bg3);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.section-label h2{font-size:1.125rem;font-weight:600;margin-bottom:2px}
+.section-label p{font-size:.8rem;color:var(--text3)}
+.mode-toggle{display:flex;background:var(--bg3);border-radius:12px;padding:4px;margin-bottom:20px;border:1px solid var(--border)}
+.mode-btn{flex:1;padding:12px 16px;background:0;border:0;border-radius:8px;color:var(--text3);font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.mode-btn:hover{color:var(--text2)}
+.mode-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(var(--accent-rgb),.3)}
+.mode-btn .icon{width:16px;height:16px}
+.field-group{margin-bottom:20px}
+.field-group:last-child{margin-bottom:0}
+.field-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.field-label label{font-size:.875rem;font-weight:500;color:var(--text2);display:flex;align-items:center;gap:6px}
+.field-label .hint{font-size:.7rem;color:var(--text3);background:var(--bg3);padding:4px 12px;border-radius:20px}
+.optional{font-size:.65rem;color:var(--text3);background:var(--bg4);padding:2px 8px;border-radius:10px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.mode-fields{display:none;animation:slideIn .2s ease;margin-bottom:20px}
+.mode-fields.show{display:block}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.select-wrap{position:relative}
+.select-btn{width:100%;padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:inherit;font-size:.95rem;font-weight:500;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:all .2s}
+.select-btn:hover{background:var(--bg4);border-color:var(--border2)}
+.select-btn .arrow{flex-shrink:0;color:var(--text3);transition:transform .2s}
+.select-btn.open .arrow{transform:rotate(180deg)}
+.select-btn .placeholder{color:var(--text3)}
+.select-dropdown{position:absolute;top:calc(100% + 8px);left:0;right:0;background:rgba(20,20,30,.95);backdrop-filter:blur(20px);border:1px solid var(--border2);border-radius:12px;padding:8px;z-index:100;opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .2s;box-shadow:0 20px 40px rgba(0,0,0,.4);max-height:280px;overflow-y:auto}
+.select-dropdown.open{opacity:1;visibility:visible;transform:translateY(0)}
+.select-option{padding:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .2s}
+.select-option:hover{background:var(--bg4)}
+.select-option.selected{background:rgba(var(--accent-rgb),.1);color:var(--accent)}
+.option-main{font-weight:500}
+.option-sub{font-size:.75rem;color:var(--text3);margin-top:2px}
+.select-option .check{color:var(--accent);opacity:0}
+.select-option.selected .check{opacity:1}
+.add-option{border-top:1px solid var(--border);margin-top:8px;padding-top:8px}
+.add-option .select-option{color:var(--accent)}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap input{width:100%;padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:inherit;font-size:1.25rem;font-weight:600;transition:all .2s}
+.input-wrap input::placeholder{color:var(--text3);font-weight:400}
+.input-wrap input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.1)}
+.input-wrap.compact input{font-size:1rem;padding:12px 16px}
+.input-wrap .suffix{position:absolute;right:16px;color:var(--text3);font-size:1rem;font-weight:500;pointer-events:none}
+.input-wrap .prefix{position:absolute;left:16px;color:var(--text3);font-size:1.25rem;font-weight:600;pointer-events:none}
+.input-wrap.compact .prefix{font-size:1rem}
+.input-wrap.has-prefix input{padding-left:42px}
+.field-error{font-size:.75rem;color:var(--danger);margin-top:8px;display:none;align-items:center;gap:6px}
+.field-error.show{display:flex}
+.target-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.target-btn{padding:12px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+.target-btn:hover{border-color:var(--border2);transform:translateY(-2px)}
+.target-btn.active{border-color:var(--accent);color:var(--text);background:rgba(var(--accent-rgb),.1)}
+.custom-target{margin-top:12px;display:none;animation:slideIn .2s}
+.custom-target.show{display:block}
+.battery-box{padding:24px;background:var(--bg3);border-radius:16px;margin:24px 0;position:relative;overflow:hidden}
+.battery-box::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(var(--charge-color),.05),transparent);pointer-events:none}
+.battery-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;position:relative;z-index:1}
+.battery-stat{text-align:center}
+.battery-val{font-size:2.5rem;font-weight:700;line-height:1;margin-bottom:8px;font-family:'Space Grotesk',sans-serif}
+.battery-val.current{color:rgb(var(--charge-color))}
+.battery-val.target{color:var(--accent)}
+.battery-lbl{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.battery-arrow{color:var(--text3);margin-bottom:8px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(5px);opacity:1}}
+.battery-bar{height:64px;background:var(--bg);border-radius:12px;position:relative;overflow:hidden;border:2px solid var(--border)}
+.battery-fill{position:absolute;left:0;top:0;bottom:0;right:0;border-radius:12px;transform-origin:left center}
+.battery-fill.target{background:linear-gradient(90deg,rgba(var(--accent-rgb),.2),rgba(var(--accent-rgb),.4));transition:transform .5s}
+.battery-fill.current{background:linear-gradient(90deg,rgb(var(--charge-color)),rgba(var(--charge-color),.7));box-shadow:0 0 30px rgba(var(--charge-color),.4);transition:transform .5s}
+.charge-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg);padding:8px 12px;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--accent);border:1px solid var(--accent);white-space:nowrap;z-index:10;transition:left .5s}
+.results{display:none;animation:fadeUp .5s ease}
+.results.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.results-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.result-card{background:var(--bg3);border-radius:12px;padding:20px;text-align:center;border:1px solid transparent;transition:all .2s}
+.result-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.result-card.highlight{grid-column:1/-1;background:linear-gradient(135deg,rgba(var(--accent-rgb),.1),rgba(var(--accent-rgb),.05));border-color:var(--accent);padding:24px}
+.result-icon{width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.result-label{font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600}
+.result-value{font-size:1.75rem;font-weight:700;font-family:'Space Grotesk',sans-serif}
+.result-value.success{color:var(--accent)}
+.result-value.warning{color:var(--warn)}
+.result-value small{font-size:.9rem;font-weight:500;opacity:.7}
+.status-banner{padding:20px;border-radius:12px;display:flex;align-items:center;gap:16px;margin-top:16px}
+.status-banner.success{background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.3)}
+.status-banner.warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
+.status-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.status-banner.success .status-icon{background:rgba(var(--accent-rgb),.2);color:var(--accent)}
+.status-banner.warning .status-icon{background:rgba(245,158,11,.2);color:var(--warn)}
+.status-content h3{font-size:1rem;font-weight:600;margin-bottom:4px}
+.status-banner.success .status-content h3{color:var(--accent)}
+.status-banner.warning .status-content h3{color:var(--warn)}
+.status-content p{font-size:.85rem;color:var(--text2)}
+.status-content strong{color:var(--text)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.actions.single{grid-template-columns:1fr}
+.btn{padding:16px 24px;border-radius:12px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;border:0}
+.btn-primary{background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.8));color:#fff;box-shadow:0 4px 20px rgba(var(--accent-rgb),.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(var(--accent-rgb),.4)}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg4);border-color:var(--border2);color:var(--text)}
+.user-panel{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:400px;background:rgba(20,20,30,.95);backdrop-filter:blur(30px);border-left:1px solid var(--border);z-index:1001;transform:translateX(100%);transition:transform .3s;overflow-y:auto}
+.user-panel.open{transform:translateX(0)}
+.user-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;opacity:0;visibility:hidden;transition:all .3s}
+.user-overlay.open{opacity:1;visibility:visible}
+.user-header{padding:24px;padding-top:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;position:sticky;top:0;background:rgba(20,20,30,.95);backdrop-filter:blur(30px);z-index:10}
+.user-avatar{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.7));border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-avatar svg{width:28px;height:28px;color:#fff}
+.user-info{flex:1}
+.user-info h2{font-size:1.25rem;font-weight:700}
+.user-info p{font-size:.85rem;color:var(--text3);margin-top:4px}
+.user-close{width:40px;height:40px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.user-close:hover{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger)}
+.user-body{padding:20px}
+.user-section{margin-bottom:20px}
+.user-section-title{font-size:.7rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 4px;margin-bottom:12px}
+.color-picker{display:grid;grid-template-columns:repeat(8,1fr);gap:12px;padding:16px;background:var(--bg3);border-radius:12px}
+.color-opt{width:100%;aspect-ratio:1;border-radius:50%;cursor:pointer;transition:all .2s;border:3px solid transparent}
+.color-opt:hover{transform:scale(1.15)}
+.color-opt.active{border-color:var(--text);transform:scale(1.1);box-shadow:0 0 20px currentColor}
+.color-opt[data-c="green"]{background:linear-gradient(135deg,#00d4aa,#00a080)}
+.color-opt[data-c="blue"]{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.color-opt[data-c="purple"]{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
+.color-opt[data-c="pink"]{background:linear-gradient(135deg,#ec4899,#db2777)}
+.color-opt[data-c="orange"]{background:linear-gradient(135deg,#f97316,#ea580c)}
+.color-opt[data-c="cyan"]{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.color-opt[data-c="red"]{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.color-opt[data-c="yellow"]{background:linear-gradient(135deg,#eab308,#ca8a04)}
+.color-opt[data-c="lime"]{background:linear-gradient(135deg,#84cc16,#65a30d)}
+.color-opt[data-c="teal"]{background:linear-gradient(135deg,#14b8a6,#0d9488)}
+.color-opt[data-c="indigo"]{background:linear-gradient(135deg,#6366f1,#4f46e5)}
+.color-opt[data-c="rose"]{background:linear-gradient(135deg,#f43f5e,#e11d48)}
+.color-opt[data-c="emerald"]{background:linear-gradient(135deg,#10b981,#059669)}
+.color-opt[data-c="violet"]{background:linear-gradient(135deg,#7c3aed,#6d28d9)}
+.color-opt[data-c="sky"]{background:linear-gradient(135deg,#0ea5e9,#0284c7)}
+.color-opt[data-c="fuchsia"]{background:linear-gradient(135deg,#d946ef,#c026d3)}
+.accordion-item{background:var(--bg3);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.accordion-trigger{width:100%;padding:16px;background:0;border:0;color:var(--text);font-family:inherit;font-size:.95rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:12px;transition:color .2s}
+.accordion-trigger:hover{color:var(--accent)}
+.accordion-icon{width:36px;height:36px;background:var(--bg4);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.accordion-trigger .arrow{margin-left:auto;color:var(--text3);transition:transform .2s}
+.accordion-trigger.open .arrow{transform:rotate(180deg)}
+.accordion-content{max-height:0;overflow:hidden;transition:max-height .4s}
+.accordion-content.open{max-height:800px}
+.accordion-inner{padding:0 16px 16px}
+.item-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.item-card{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;position:relative}
+.item-icon{width:40px;height:40px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)}
+.item-info{flex:1;min-width:0}
+.item-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-detail{font-size:.75rem;color:var(--text3);margin-top:2px}
+.item-actions{display:flex;gap:4px;flex-shrink:0}
+.item-edit,.item-delete{width:32px;height:32px;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--text3);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:10;pointer-events:auto !important}
+.item-edit:hover{background:rgba(var(--accent-rgb),.1);border-color:var(--accent);color:var(--accent)}
+.item-delete:hover{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger)}
+.item-edit svg,.item-delete svg{pointer-events:none}
+.empty-state{text-align:center;padding:24px 16px}
+.empty-state .empty-icon{width:56px;height:56px;margin:0 auto 12px;background:var(--bg4);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.empty-state h4{font-size:.95rem;font-weight:600;margin-bottom:4px}
+.empty-state p{font-size:.8rem;color:var(--text3)}
+.history-card{background:var(--bg4);border-radius:12px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;border:1px solid var(--border);position:relative}
+.history-info{min-width:0}
+.history-info h4{font-size:.85rem;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.history-info p{font-size:.7rem;color:var(--text3)}
+.history-meta{text-align:right}
+.history-cost{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--accent)}
+.history-time{font-size:.65rem;color:var(--text3);margin-top:4px}
+.history-delete{width:28px;height:28px;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--text3);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;position:relative;z-index:10;pointer-events:auto !important}
+.history-delete:hover{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger)}
+.history-delete svg{pointer-events:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:1002;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:all .3s}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal{width:100%;max-width:400px;background:rgba(20,20,30,.95);backdrop-filter:blur(30px);border:1px solid var(--border2);border-radius:20px;padding:24px;transform:scale(.95);transition:transform .3s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.modal-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),rgba(var(--accent-rgb),.7));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff}
+.modal-title{flex:1}
+.modal-title h3{font-size:1.25rem;font-weight:700;margin-bottom:4px}
+.modal-title p{font-size:.85rem;color:var(--text3)}
+.modal-close{width:40px;height:40px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger)}
+.modal-body{margin-bottom:24px}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(20,20,30,.95);backdrop-filter:blur(20px);border:1px solid var(--border2);padding:12px 24px;border-radius:100px;font-size:.9rem;font-weight:500;z-index:2000;display:flex;align-items:center;gap:12px;box-shadow:0 20px 40px rgba(0,0,0,.4);opacity:0;visibility:hidden;transition:all .3s}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
+.toast.success{border-color:var(--accent)}
+.toast.success .toast-icon{color:var(--accent)}
+.toast.error{border-color:var(--danger)}
+.toast.error .toast-icon{color:var(--danger)}
+.offline-banner{position:fixed;top:0;left:0;right:0;background:var(--warn);color:#000;text-align:center;padding:8px;font-size:.85rem;font-weight:600;z-index:2000;transform:translateY(-100%);transition:transform .3s}
+.offline-banner.show{transform:translateY(0)}
+.version-info{text-align:center;padding:20px 0;color:var(--text3);font-size:.8rem}
+@media(max-width:380px){.app{padding:16px}.card{padding:20px}.target-selector{grid-template-columns:repeat(2,1fr)}.results-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.user-panel{max-width:100%}.color-picker{grid-template-columns:repeat(4,1fr);gap:8px}}
+</style>
+</head>
+<body>
+<div class="bg-grad"><div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div></div>
+<div class="offline-banner" id="offlineBanner">You're offline</div>
+<div class="user-overlay" id="userOverlay"></div>
+<div class="user-panel" id="userPanel">
+<div class="user-header">
+<div class="user-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+<div class="user-info"><h2>Settings</h2><p>Manage vehicles & stations</p></div>
+<button class="user-close" id="userClose"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+</div>
+<div class="user-body" id="userBody">
+<div class="user-section">
+<div class="accordion-item">
+<button class="accordion-trigger"><div class="accordion-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div>My Vehicles<span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+<div class="accordion-content"><div class="accordion-inner"><div class="item-grid" id="vehicleList"></div><button class="btn btn-secondary" style="width:100%" id="addVehicleModalBtn"><svg class="icon sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Vehicle</button></div></div>
+</div>
+<div class="accordion-item">
+<button class="accordion-trigger"><div class="accordion-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>Charging Stations<span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+<div class="accordion-content"><div class="accordion-inner"><div class="item-grid" id="stationList"></div><button class="btn btn-secondary" style="width:100%" id="addStationModalBtn"><svg class="icon sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Station</button></div></div>
+</div>
+<div class="accordion-item">
+<button class="accordion-trigger"><div class="accordion-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Saved Sessions<span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+<div class="accordion-content"><div class="accordion-inner" id="historyList"></div></div>
+</div>
+</div>
+<div class="user-section">
+<div class="user-section-title">Theme Color</div>
+<div class="color-picker" id="colorPicker">
+<div class="color-opt active" data-c="green"></div>
+<div class="color-opt" data-c="teal"></div>
+<div class="color-opt" data-c="cyan"></div>
+<div class="color-opt" data-c="sky"></div>
+<div class="color-opt" data-c="blue"></div>
+<div class="color-opt" data-c="indigo"></div>
+<div class="color-opt" data-c="violet"></div>
+<div class="color-opt" data-c="purple"></div>
+<div class="color-opt" data-c="fuchsia"></div>
+<div class="color-opt" data-c="pink"></div>
+<div class="color-opt" data-c="rose"></div>
+<div class="color-opt" data-c="red"></div>
+<div class="color-opt" data-c="orange"></div>
+<div class="color-opt" data-c="yellow"></div>
+<div class="color-opt" data-c="lime"></div>
+<div class="color-opt" data-c="emerald"></div>
+</div>
+</div>
+<div class="version-info"><p>Wattev v.1</p></div>
+</div>
+</div>
+<div class="app">
+<header class="header">
+<button class="user-btn" id="userBtn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+<div class="logo-wrap">
+<div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+<span class="logo">Wattev</span>
+<span class="tagline">Smart EV Charging Calculator</span>
+</div>
+</header>
+<div class="card">
+<div class="card-glow"></div>
+<div class="section-title">
+<div class="section-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+<div class="section-label"><h2>Calculate Charge</h2><p>Enter your charging details</p></div>
+</div>
+<div class="mode-toggle">
+<button class="mode-btn active" data-mode="saved"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Saved</button>
+<button class="mode-btn" data-mode="quick"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Quick</button>
+</div>
+<div class="mode-fields show" id="savedFields">
+<div class="field-group">
+<div class="field-label"><label>Vehicle</label></div>
+<div class="select-wrap">
+<button class="select-btn" id="vehicleBtn"><span class="placeholder">Select your vehicle</span><span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+<div class="select-dropdown" id="vehicleDropdown"></div>
+</div>
+</div>
+<div class="field-group">
+<div class="field-label"><label>Charging Station</label></div>
+<div class="select-wrap">
+<button class="select-btn" id="stationBtn"><span class="placeholder">Select charging station</span><span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+<div class="select-dropdown" id="stationDropdown"></div>
+</div>
+</div>
+</div>
+<div class="mode-fields" id="quickFields">
+<div class="field-group">
+<div class="field-label"><label>Battery Capacity</label><span class="hint">Check manual</span></div>
+<div class="input-wrap compact"><input type="number" id="quickBattery" placeholder="75" min="1" max="500" inputmode="decimal"><span class="suffix">kWh</span></div>
+</div>
+<div class="field-row">
+<div class="field-group">
+<div class="field-label"><label>Rate/kWh</label></div>
+<div class="input-wrap compact has-prefix"><span class="prefix">₹</span><input type="number" id="quickRate" placeholder="12" min="0.1" max="100" inputmode="decimal"></div>
+</div>
+<div class="field-group">
+<div class="field-label"><label>Power <span class="optional">Opt</span></label></div>
+<div class="input-wrap compact"><input type="number" id="quickPower" placeholder="50" min="1" max="500" inputmode="decimal"><span class="suffix">kW</span></div>
+</div>
+</div>
+<div class="field-group">
+<div class="field-label"><label>Min Balance <span class="optional">Opt</span></label></div>
+<div class="input-wrap compact has-prefix"><span class="prefix">₹</span><input type="number" id="quickMin" placeholder="50" min="0" max="10000" inputmode="decimal"></div>
+</div>
+</div>
+<div class="field-group">
+<div class="field-label"><label>Current Battery Level</label><span class="hint">Check display</span></div>
+<div class="input-wrap"><input type="number" id="currentPercent" placeholder="20" min="0" max="100" inputmode="numeric"><span class="suffix">%</span></div>
+</div>
+<div class="field-group">
+<div class="field-label"><label>Charge To</label></div>
+<div class="target-selector">
+<button class="target-btn" data-val="80">80%</button>
+<button class="target-btn" data-val="90">90%</button>
+<button class="target-btn active" data-val="100">100%</button>
+<button class="target-btn" data-val="custom">Custom</button>
+</div>
+<div class="custom-target" id="customTarget">
+<div class="input-wrap"><input type="number" id="targetPercent" placeholder="95" min="0" max="100" inputmode="numeric"><span class="suffix">%</span></div>
+</div>
+</div>
+<div class="field-group">
+<div class="field-label"><label>Wallet Balance <span class="optional" id="walletOpt" style="display:none">Opt</span></label><span class="hint">App balance</span></div>
+<div class="input-wrap has-prefix"><span class="prefix">₹</span><input type="number" id="walletBalance" placeholder="500" min="0" inputmode="numeric"></div>
+</div>
+<div class="battery-box">
+<div class="battery-header">
+<div class="battery-stat"><div class="battery-val current" id="currentDisp">0%</div><div class="battery-lbl">Current</div></div>
+<div class="battery-arrow"><svg class="icon lg" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+<div class="battery-stat"><div class="battery-val target" id="targetDisp">100%</div><div class="battery-lbl">Target</div></div>
+</div>
+<div class="battery-bar">
+<div class="battery-fill target" id="batteryTarget"></div>
+<div class="battery-fill current" id="batteryCurrent"></div>
+<div class="charge-indicator" id="chargeInd">+0 kWh</div>
+</div>
+</div>
+<div class="results" id="results">
+<div class="results-grid">
+<div class="result-card"><div class="result-icon"><svg class="icon lg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="result-label">Energy</div><div class="result-value" id="energyRes">0 <small>kWh</small></div></div>
+<div class="result-card"><div class="result-icon"><svg class="icon lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="result-label">Time</div><div class="result-value" id="timeRes">0 <small>min</small></div></div>
+<div class="result-card"><div class="result-icon"><svg class="icon lg" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="result-label">Cost</div><div class="result-value" id="costRes">₹0</div></div>
+<div class="result-card"><div class="result-icon"><svg class="icon lg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="result-label">Min Balance</div><div class="result-value" id="minRes">₹0</div></div>
+<div class="result-card highlight"><div class="result-icon"><svg class="icon lg" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="result-label">Total Required</div><div class="result-value" id="totalRes">₹0</div></div>
+</div>
+<div class="status-banner" id="statusBanner">
+<div class="status-icon" id="statusIcon"><svg class="icon lg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+<div class="status-content"><h3 id="statusTitle">Ready to charge!</h3><p id="statusText">Your wallet has sufficient balance.</p></div>
+</div>
+<div class="actions" id="actionBtns">
+<button class="btn btn-secondary" id="resetBtn"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Reset</button>
+<button class="btn btn-primary" id="saveBtn"><svg class="icon sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="vehicleModal">
+<div class="modal">
+<div class="modal-header">
+<div class="modal-icon"><svg class="icon lg" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div>
+<div class="modal-title"><h3 id="vehicleModalTitle">Add Vehicle</h3><p id="vehicleModalSubtitle">Enter your EV details</p></div>
+<button class="modal-close" id="closeVehicleModal"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+</div>
+<div class="modal-body">
+<div class="field-group"><div class="field-label"><label>Vehicle Name</label></div><div class="input-wrap"><input type="text" id="newVehicleName" placeholder="Tesla Model 3" maxlength="50"></div><div class="field-error" id="vNameErr"><svg class="icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Enter valid name</span></div></div>
+<div class="field-group"><div class="field-label"><label>Battery Capacity</label><span class="hint">Check manual</span></div><div class="input-wrap"><input type="number" id="newVehicleCap" placeholder="75" inputmode="decimal" min="1" max="500"><span class="suffix">kWh</span></div><div class="field-error" id="vCapErr"><svg class="icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Enter 1-500 kWh</span></div></div>
+</div>
+<div class="modal-actions"><button class="btn btn-secondary" id="cancelVehicleModal">Cancel</button><button class="btn btn-primary" id="addVehicleBtn">Add Vehicle</button></div>
+</div>
+</div>
+<div class="modal-overlay" id="stationModal">
+<div class="modal">
+<div class="modal-header">
+<div class="modal-icon"><svg class="icon lg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+<div class="modal-title"><h3 id="stationModalTitle">Add Station</h3><p id="stationModalSubtitle">Enter station details</p></div>
+<button class="modal-close" id="closeStationModal"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+</div>
+<div class="modal-body">
+<div class="field-group"><div class="field-label"><label>Station Name</label></div><div class="input-wrap"><input type="text" id="newStationName" placeholder="Tata Power - Mall Road" maxlength="50"></div><div class="field-error" id="sNameErr"><svg class="icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Enter valid name</span></div></div>
+<div class="field-group"><div class="field-label"><label>Rate per kWh</label></div><div class="input-wrap has-prefix"><span class="prefix">₹</span><input type="number" id="newStationRate" placeholder="12" inputmode="decimal" min="0.1" max="100"></div><div class="field-error" id="sRateErr"><svg class="icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Enter 0.1-100</span></div></div>
+<div class="field-row">
+<div class="field-group"><div class="field-label"><label>Power <span class="optional">Opt</span></label></div><div class="input-wrap compact"><input type="number" id="newStationPower" placeholder="50" inputmode="decimal" min="1" max="500"><span class="suffix">kW</span></div></div>
+<div class="field-group"><div class="field-label"><label>Min Balance <span class="optional">Opt</span></label></div><div class="input-wrap compact has-prefix"><span class="prefix">₹</span><input type="number" id="newStationMin" placeholder="50" inputmode="decimal" min="0" max="10000"></div></div>
+</div>
+</div>
+<div class="modal-actions"><button class="btn btn-secondary" id="cancelStationModal">Cancel</button><button class="btn btn-primary" id="addStationBtn">Add Station</button></div>
+</div>
+</div>
+<div class="toast" id="toast"><svg class="icon toast-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span class="toast-text"></span></div>
+<script>
+(function() {
+    var VEHICLES_KEY = 'wattev_vehicles';
+    var STATIONS_KEY = 'wattev_stations';
+    var HISTORY_KEY = 'wattev_history';
+    var PREFS_KEY = 'wattev_prefs';
+    var SETTINGS_KEY = 'wattev_settings';
+    
+    var state = {
+        vehicle: null,
+        station: null,
+        target: 100,
+        mode: 'saved',
+        editingVehicle: null,
+        editingStation: null
+    };
+    
+    function $(id) { return document.getElementById(id); }
+    function $$(sel) { return document.querySelectorAll(sel); }
+    
+    function getStorage(key, def) {
+        try {
+            var data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : def;
+        } catch(e) {
+            return def;
+        }
+    }
+    
+    function setStorage(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch(e) {}
+    }
+    
+    function formatCurrency(val) {
+        return '₹' + Math.round(val).toLocaleString('en-IN');
+    }
+    
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
+    function sanitize(str) {
+        return str ? str.replace(/[<>'"&]/g, '').trim().slice(0, 50) : '';
+    }
+    
+    function showToast(msg, type) {
+        var t = $('toast');
+        t.querySelector('.toast-text').textContent = msg;
+        t.className = 'toast ' + (type || 'success') + ' show';
+        setTimeout(function() { t.classList.remove('show'); }, 2500);
+    }
+    
+    function openPanel() {
+        $('userPanel').classList.add('open');
+        $('userOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closePanel() {
+        $('userPanel').classList.remove('open');
+        $('userOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    
+    function openModal(id) {
+        $(id).classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal(id) {
+        $(id).classList.remove('open');
+        document.body.style.overflow = '';
+        if (id === 'vehicleModal') {
+            state.editingVehicle = null;
+            $('newVehicleName').value = '';
+            $('newVehicleCap').value = '';
+            $('vNameErr').classList.remove('show');
+            $('vCapErr').classList.remove('show');
+            $('vehicleModalTitle').textContent = 'Add Vehicle';
+            $('vehicleModalSubtitle').textContent = 'Enter your EV details';
+            $('addVehicleBtn').textContent = 'Add Vehicle';
+        }
+        if (id === 'stationModal') {
+            state.editingStation = null;
+            $('newStationName').value = '';
+            $('newStationRate').value = '';
+            $('newStationPower').value = '';
+            $('newStationMin').value = '';
+            $('sNameErr').classList.remove('show');
+            $('sRateErr').classList.remove('show');
+            $('stationModalTitle').textContent = 'Add Station';
+            $('stationModalSubtitle').textContent = 'Enter station details';
+            $('addStationBtn').textContent = 'Add Station';
+        }
+    }
+    
+    function closeDropdowns() {
+        $$('.select-dropdown').forEach(function(d) { d.classList.remove('open'); });
+        $$('.select-btn').forEach(function(b) { b.classList.remove('open'); });
+    }
+    
+    function loadVehicleList() {
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        var keys = Object.keys(vehicles);
+        var html = '';
+        
+        if (keys.length === 0) {
+            html = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div><h4>No vehicles</h4><p>Add your first EV</p></div>';
+        } else {
+            keys.forEach(function(name) {
+                html += '<div class="item-card"><div class="item-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div><div class="item-info"><div class="item-name">' + escapeHtml(name) + '</div><div class="item-detail">' + vehicles[name] + ' kWh</div></div><div class="item-actions"><button type="button" class="item-edit js-edit-vehicle" data-name="' + escapeHtml(name) + '"><svg class="icon sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button type="button" class="item-delete js-delete-vehicle" data-name="' + escapeHtml(name) + '"><svg class="icon sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>';
+            });
+        }
+        
+        $('vehicleList').innerHTML = html;
+    }
+    
+    function loadStationList() {
+        var stations = getStorage(STATIONS_KEY, {});
+        var keys = Object.keys(stations);
+        var html = '';
+        
+        if (keys.length === 0) {
+            html = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><h4>No stations</h4><p>Add charging stations</p></div>';
+        } else {
+            keys.forEach(function(name) {
+                var s = stations[name];
+                html += '<div class="item-card"><div class="item-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="item-info"><div class="item-name">' + escapeHtml(name) + '</div><div class="item-detail">₹' + s.rate + '/kWh • ' + (s.power || 50) + 'kW</div></div><div class="item-actions"><button type="button" class="item-edit js-edit-station" data-name="' + escapeHtml(name) + '"><svg class="icon sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button type="button" class="item-delete js-delete-station" data-name="' + escapeHtml(name) + '"><svg class="icon sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>';
+            });
+        }
+        
+        $('stationList').innerHTML = html;
+    }
+    
+    function loadHistoryList() {
+        var history = getStorage(HISTORY_KEY, []);
+        var html = '';
+        
+        if (history.length === 0) {
+            html = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h4>No sessions</h4><p>Saved sessions appear here</p></div>';
+        } else {
+            history.slice(0, 10).forEach(function(item, index) {
+                html += '<div class="history-card"><div class="history-info"><h4>' + escapeHtml(item.vehicle) + '</h4><p>' + escapeHtml(item.station) + ' • ' + item.from + '%→' + item.to + '%</p></div><div class="history-meta"><div class="history-cost">' + formatCurrency(item.cost) + '</div><div class="history-time">' + item.date + '</div></div><button type="button" class="history-delete js-delete-history" data-index="' + index + '"><svg class="icon xs" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+            });
+        }
+        
+        $('historyList').innerHTML = html;
+    }
+    
+    function loadDropdowns() {
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        var stations = getStorage(STATIONS_KEY, {});
+        var vKeys = Object.keys(vehicles);
+        var sKeys = Object.keys(stations);
+        
+        var vHtml = '';
+        if (vKeys.length === 0) {
+            vHtml = '<div style="padding:20px;text-align:center;color:var(--text3)">No vehicles yet</div>';
+        } else {
+            vKeys.forEach(function(name) {
+                var selected = state.vehicle === name ? ' selected' : '';
+                vHtml += '<div class="select-option' + selected + '" data-type="vehicle" data-name="' + escapeHtml(name) + '"><div><div class="option-main">' + escapeHtml(name) + '</div><div class="option-sub">' + vehicles[name] + ' kWh</div></div><span class="check"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>';
+            });
+        }
+        vHtml += '<div class="add-option"><div class="select-option" data-action="add-vehicle"><div class="option-main" style="display:flex;align-items:center;gap:8px"><svg class="icon sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add New</div></div></div>';
+        $('vehicleDropdown').innerHTML = vHtml;
+        
+        var sHtml = '';
+        if (sKeys.length === 0) {
+            sHtml = '<div style="padding:20px;text-align:center;color:var(--text3)">No stations yet</div>';
+        } else {
+            sKeys.forEach(function(name) {
+                var s = stations[name];
+                var selected = state.station === name ? ' selected' : '';
+                sHtml += '<div class="select-option' + selected + '" data-type="station" data-name="' + escapeHtml(name) + '"><div><div class="option-main">' + escapeHtml(name) + '</div><div class="option-sub">₹' + s.rate + '/kWh • ' + (s.power || 50) + 'kW</div></div><span class="check"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>';
+            });
+        }
+        sHtml += '<div class="add-option"><div class="select-option" data-action="add-station"><div class="option-main" style="display:flex;align-items:center;gap:8px"><svg class="icon sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add New</div></div></div>';
+        $('stationDropdown').innerHTML = sHtml;
+    }
+    
+    function selectVehicle(name) {
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        if (!vehicles[name]) return;
+        
+        state.vehicle = name;
+        $('vehicleBtn').innerHTML = '<span>' + escapeHtml(name) + ' <span style="color:var(--text3)">(' + vehicles[name] + ' kWh)</span></span><span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>';
+        
+        var prefs = getStorage(PREFS_KEY, {});
+        prefs.vehicle = name;
+        setStorage(PREFS_KEY, prefs);
+        
+        closeDropdowns();
+        loadDropdowns();
+        calculate();
+    }
+    
+    function selectStation(name) {
+        var stations = getStorage(STATIONS_KEY, {});
+        if (!stations[name]) return;
+        
+        state.station = name;
+        $('stationBtn').innerHTML = '<span>' + escapeHtml(name) + ' <span style="color:var(--text3)">(₹' + stations[name].rate + '/kWh)</span></span><span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>';
+        
+        var prefs = getStorage(PREFS_KEY, {});
+        prefs.station = name;
+        setStorage(PREFS_KEY, prefs);
+        
+        closeDropdowns();
+        loadDropdowns();
+        calculate();
+    }
+    
+    function editVehicle(name) {
+        if (!name) return;
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        if (!vehicles[name]) return;
+        
+        state.editingVehicle = name;
+        $('newVehicleName').value = name;
+        $('newVehicleCap').value = vehicles[name];
+        $('vehicleModalTitle').textContent = 'Edit Vehicle';
+        $('vehicleModalSubtitle').textContent = 'Update your EV details';
+        $('addVehicleBtn').textContent = 'Save Changes';
+        openModal('vehicleModal');
+    }
+    
+    function editStation(name) {
+        if (!name) return;
+        var stations = getStorage(STATIONS_KEY, {});
+        if (!stations[name]) return;
+        
+        var s = stations[name];
+        state.editingStation = name;
+        $('newStationName').value = name;
+        $('newStationRate').value = s.rate;
+        $('newStationPower').value = s.power || '';
+        $('newStationMin').value = s.min || '';
+        $('stationModalTitle').textContent = 'Edit Station';
+        $('stationModalSubtitle').textContent = 'Update station details';
+        $('addStationBtn').textContent = 'Save Changes';
+        openModal('stationModal');
+    }
+    
+    function deleteVehicle(name) {
+        if (!name) return;
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        delete vehicles[name];
+        setStorage(VEHICLES_KEY, vehicles);
+        if (state.vehicle === name) {
+            state.vehicle = null;
+            $('vehicleBtn').innerHTML = '<span class="placeholder">Select your vehicle</span><span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>';
+        }
+        loadVehicleList();
+        loadDropdowns();
+        calculate();
+        showToast('Vehicle deleted');
+    }
+    
+    function deleteStation(name) {
+        if (!name) return;
+        var stations = getStorage(STATIONS_KEY, {});
+        delete stations[name];
+        setStorage(STATIONS_KEY, stations);
+        if (state.station === name) {
+            state.station = null;
+            $('stationBtn').innerHTML = '<span class="placeholder">Select charging station</span><span class="arrow"><svg class="icon sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>';
+        }
+        loadStationList();
+        loadDropdowns();
+        calculate();
+        showToast('Station deleted');
+    }
+    
+    function deleteHistory(index) {
+        var history = getStorage(HISTORY_KEY, []);
+        history.splice(index, 1);
+        setStorage(HISTORY_KEY, history);
+        loadHistoryList();
+        showToast('Session deleted');
+    }
+    
+    function addVehicle() {
+        var name = sanitize($('newVehicleName').value);
+        var cap = parseFloat($('newVehicleCap').value);
+        $('vNameErr').classList.remove('show');
+        $('vCapErr').classList.remove('show');
+        var hasError = false;
+        if (!name || name.length < 2) { $('vNameErr').classList.add('show'); hasError = true; }
+        if (isNaN(cap) || cap < 1 || cap > 500) { $('vCapErr').classList.add('show'); hasError = true; }
+        if (hasError) return;
+        
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        var isEditing = state.editingVehicle !== null;
+        var oldName = state.editingVehicle;
+        
+        if (isEditing && oldName !== name) {
+            delete vehicles[oldName];
+            if (state.vehicle === oldName) {
+                state.vehicle = name;
+            }
+            var prefs = getStorage(PREFS_KEY, {});
+            if (prefs.vehicle === oldName) {
+                prefs.vehicle = name;
+                setStorage(PREFS_KEY, prefs);
+            }
+        }
+        
+        vehicles[name] = cap;
+        setStorage(VEHICLES_KEY, vehicles);
+        
+        closeModal('vehicleModal');
+        loadVehicleList();
+        loadDropdowns();
+        
+        if (state.vehicle === name || (isEditing && oldName === state.vehicle)) {
+            selectVehicle(name);
+        }
+        
+        showToast(isEditing ? 'Vehicle updated!' : 'Vehicle added!');
+    }
+    
+    function addStation() {
+        var name = sanitize($('newStationName').value);
+        var rate = parseFloat($('newStationRate').value);
+        var power = parseFloat($('newStationPower').value) || 50;
+        var min = parseFloat($('newStationMin').value) || 0;
+        $('sNameErr').classList.remove('show');
+        $('sRateErr').classList.remove('show');
+        var hasError = false;
+        if (!name || name.length < 2) { $('sNameErr').classList.add('show'); hasError = true; }
+        if (isNaN(rate) || rate < 0.1 || rate > 100) { $('sRateErr').classList.add('show'); hasError = true; }
+        if (hasError) return;
+        
+        var stations = getStorage(STATIONS_KEY, {});
+        var isEditing = state.editingStation !== null;
+        var oldName = state.editingStation;
+        
+        if (isEditing && oldName !== name) {
+            delete stations[oldName];
+            if (state.station === oldName) {
+                state.station = name;
+            }
+            var prefs = getStorage(PREFS_KEY, {});
+            if (prefs.station === oldName) {
+                prefs.station = name;
+                setStorage(PREFS_KEY, prefs);
+            }
+        }
+        
+        stations[name] = { rate: rate, power: power, min: min };
+        setStorage(STATIONS_KEY, stations);
+        
+        closeModal('stationModal');
+        loadStationList();
+        loadDropdowns();
+        
+        if (state.station === name || (isEditing && oldName === state.station)) {
+            selectStation(name);
+        }
+        
+        showToast(isEditing ? 'Station updated!' : 'Station added!');
+    }
+    
+    function setMode(mode) {
+        state.mode = mode;
+        $$('.mode-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.mode === mode); });
+        $('savedFields').classList.toggle('show', mode === 'saved');
+        $('quickFields').classList.toggle('show', mode === 'quick');
+        $('saveBtn').style.display = mode === 'saved' ? '' : 'none';
+        $('actionBtns').classList.toggle('single', mode === 'quick');
+        var prefs = getStorage(PREFS_KEY, {});
+        prefs.mode = mode;
+        setStorage(PREFS_KEY, prefs);
+        calculate();
+    }
+    
+    function setTarget(val) {
+        state.target = val;
+        $$('.target-btn').forEach(function(b) { b.classList.toggle('active', parseInt(b.dataset.val) === val); });
+        $('customTarget').classList.remove('show');
+        $('targetPercent').value = val;
+        $('targetDisp').textContent = val + '%';
+        var prefs = getStorage(PREFS_KEY, {});
+        prefs.target = val;
+        setStorage(PREFS_KEY, prefs);
+        calculate();
+    }
+    
+    function updateBattery(current, target) {
+        $('batteryCurrent').style.transform = 'scaleX(' + (current / 100) + ')';
+        $('batteryTarget').style.transform = 'scaleX(' + (target / 100) + ')';
+        $('currentDisp').textContent = Math.round(current) + '%';
+        $('targetDisp').textContent = Math.round(target) + '%';
+        var indicatorPos = current + (target - current) / 2;
+        $('chargeInd').style.left = Math.max(15, Math.min(85, indicatorPos)) + '%';
+    }
+    
+    function calculate() {
+        var current = parseFloat($('currentPercent').value) || 0;
+        var target = state.target;
+        var wallet = parseFloat($('walletBalance').value) || 0;
+        updateBattery(current, target);
+        if (current >= target || current < 0 || current > 100) { $('results').classList.remove('show'); return; }
+        var cap, rate, power, min;
+        if (state.mode === 'saved') {
+            if (!state.vehicle || !state.station) { $('results').classList.remove('show'); return; }
+            var vehicles = getStorage(VEHICLES_KEY, {});
+            var stations = getStorage(STATIONS_KEY, {});
+            cap = vehicles[state.vehicle];
+            var s = stations[state.station];
+            if (!s) { $('results').classList.remove('show'); return; }
+            rate = s.rate; power = s.power || 50; min = s.min || 0;
+        } else {
+            cap = parseFloat($('quickBattery').value);
+            rate = parseFloat($('quickRate').value);
+            power = parseFloat($('quickPower').value) || 50;
+            min = parseFloat($('quickMin').value) || 0;
+            if (!cap || !rate) { $('results').classList.remove('show'); return; }
+        }
+        var energy = (cap * (target - current)) / 100;
+        var cost = energy * rate;
+        var total = cost + min;
+        var time = Math.round((energy / (power * 0.85)) * 60);
+        $('results').classList.add('show');
+        $('energyRes').innerHTML = energy.toFixed(1) + ' <small>kWh</small>';
+        $('timeRes').innerHTML = time >= 60 ? Math.floor(time / 60) + '<small>h</small> ' + (time % 60) + '<small>m</small>' : time + ' <small>min</small>';
+        $('costRes').textContent = formatCurrency(cost);
+        $('minRes').textContent = formatCurrency(min);
+        $('totalRes').textContent = formatCurrency(total);
+        $('chargeInd').textContent = '+' + energy.toFixed(1) + ' kWh';
+        var totalEl = $('totalRes');
+        totalEl.className = 'result-value';
+        if (wallet >= total) {
+            $('statusBanner').className = 'status-banner success';
+            $('statusIcon').innerHTML = '<svg class="icon lg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+            $('statusTitle').textContent = 'Ready to charge!';
+            $('statusText').textContent = 'Wallet has sufficient balance.';
+            totalEl.classList.add('success');
+        } else {
+            $('statusBanner').className = 'status-banner warning';
+            $('statusIcon').innerHTML = '<svg class="icon lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+            $('statusTitle').textContent = 'Balance required';
+            $('statusText').innerHTML = 'Need <strong>' + formatCurrency(total - wallet) + '</strong> more.';
+            totalEl.classList.add('warning');
+        }
+    }
+    
+    function saveSession() {
+        if (!state.vehicle || !state.station) { showToast('Select vehicle & station', 'error'); return; }
+        var current = parseFloat($('currentPercent').value) || 0;
+        var vehicles = getStorage(VEHICLES_KEY, {});
+        var stations = getStorage(STATIONS_KEY, {});
+        var energy = (vehicles[state.vehicle] * (state.target - current)) / 100;
+        var cost = energy * stations[state.station].rate;
+        var history = getStorage(HISTORY_KEY, []);
+        history.unshift({
+            vehicle: state.vehicle, station: state.station, from: current, to: state.target, cost: cost,
+            date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+        });
+        if (history.length > 20) history.pop();
+        setStorage(HISTORY_KEY, history);
+        loadHistoryList();
+        showToast('Session saved!');
+    }
+    
+    function resetCalc() {
+        $('currentPercent').value = '';
+        $('walletBalance').value = '';
+        $('quickBattery').value = '';
+        $('quickRate').value = '';
+        $('quickPower').value = '';
+        $('quickMin').value = '';
+        $('results').classList.remove('show');
+        updateBattery(0, state.target);
+        $('chargeInd').textContent = '+0 kWh';
+    }
+    
+    function init() {
+        loadVehicleList();
+        loadStationList();
+        loadHistoryList();
+        loadDropdowns();
+        
+        var prefs = getStorage(PREFS_KEY, {});
+        if (prefs.vehicle) {
+            var vehicles = getStorage(VEHICLES_KEY, {});
+            if (vehicles[prefs.vehicle]) selectVehicle(prefs.vehicle);
+        }
+        if (prefs.station) {
+            var stations = getStorage(STATIONS_KEY, {});
+            if (stations[prefs.station]) selectStation(prefs.station);
+        }
+        if (prefs.target) setTarget(prefs.target);
+        if (prefs.mode) setMode(prefs.mode);
+        
+        var settings = getStorage(SETTINGS_KEY, {});
+        if (settings.accent && settings.accent !== 'green') {
+            document.documentElement.setAttribute('data-accent', settings.accent);
+            $$('.color-opt').forEach(function(o) { o.classList.toggle('active', o.dataset.c === settings.accent); });
+        }
+        
+        $('batteryCurrent').style.transform = 'scaleX(0)';
+        $('batteryTarget').style.transform = 'scaleX(1)';
+        
+        $('userBody').addEventListener('click', function(e) {
+            var target = e.target;
+            var editVehicleBtn = target.closest('.js-edit-vehicle');
+            if (editVehicleBtn) { e.preventDefault(); e.stopPropagation(); editVehicle(editVehicleBtn.getAttribute('data-name')); return; }
+            var editStationBtn = target.closest('.js-edit-station');
+            if (editStationBtn) { e.preventDefault(); e.stopPropagation(); editStation(editStationBtn.getAttribute('data-name')); return; }
+            var vehicleBtn = target.closest('.js-delete-vehicle');
+            if (vehicleBtn) { e.preventDefault(); e.stopPropagation(); deleteVehicle(vehicleBtn.getAttribute('data-name')); return; }
+            var stationBtn = target.closest('.js-delete-station');
+            if (stationBtn) { e.preventDefault(); e.stopPropagation(); deleteStation(stationBtn.getAttribute('data-name')); return; }
+            var historyBtn = target.closest('.js-delete-history');
+            if (historyBtn) { e.preventDefault(); e.stopPropagation(); deleteHistory(parseInt(historyBtn.getAttribute('data-index'))); return; }
+        });
+        
+        $('userBtn').addEventListener('click', openPanel);
+        $('userClose').addEventListener('click', closePanel);
+        $('userOverlay').addEventListener('click', closePanel);
+        
+        $('addVehicleModalBtn').addEventListener('click', function() { openModal('vehicleModal'); });
+        $('addStationModalBtn').addEventListener('click', function() { openModal('stationModal'); });
+        $('closeVehicleModal').addEventListener('click', function() { closeModal('vehicleModal'); });
+        $('cancelVehicleModal').addEventListener('click', function() { closeModal('vehicleModal'); });
+        $('closeStationModal').addEventListener('click', function() { closeModal('stationModal'); });
+        $('cancelStationModal').addEventListener('click', function() { closeModal('stationModal'); });
+        $('addVehicleBtn').addEventListener('click', addVehicle);
+        $('addStationBtn').addEventListener('click', addStation);
+        
+        $('vehicleModal').addEventListener('click', function(e) { if (e.target === this) closeModal('vehicleModal'); });
+        $('stationModal').addEventListener('click', function(e) { if (e.target === this) closeModal('stationModal'); });
+        
+        $('resetBtn').addEventListener('click', resetCalc);
+        $('saveBtn').addEventListener('click', saveSession);
+        
+        $('currentPercent').addEventListener('input', calculate);
+        $('walletBalance').addEventListener('input', calculate);
+        $('quickBattery').addEventListener('input', calculate);
+        $('quickRate').addEventListener('input', calculate);
+        $('quickPower').addEventListener('input', calculate);
+        $('quickMin').addEventListener('input', calculate);
+        
+        $('targetPercent').addEventListener('input', function() {
+            var val = parseInt(this.value);
+            if (!isNaN(val) && val >= 0 && val <= 100) {
+                state.target = val;
+                $('targetDisp').textContent = val + '%';
+                calculate();
+            }
+        });
+        
+        $('colorPicker').addEventListener('click', function(e) {
+            var opt = e.target.closest('.color-opt');
+            if (!opt) return;
+            var c = opt.dataset.c;
+            $$('.color-opt').forEach(function(o) { o.classList.remove('active'); });
+            opt.classList.add('active');
+            if (c === 'green') { document.documentElement.removeAttribute('data-accent'); }
+            else { document.documentElement.setAttribute('data-accent', c); }
+            setStorage(SETTINGS_KEY, { accent: c });
+        });
+        
+        document.addEventListener('click', function(e) {
+            var t = e.target;
+            if (t.closest('.mode-btn')) { var mode = t.closest('.mode-btn').dataset.mode; if (mode) setMode(mode); return; }
+            if (t.closest('#vehicleBtn')) {
+                var dd = $('vehicleDropdown'); var btn = $('vehicleBtn'); var isOpen = dd.classList.contains('open');
+                closeDropdowns(); if (!isOpen) { dd.classList.add('open'); btn.classList.add('open'); } return;
+            }
+            if (t.closest('#stationBtn')) {
+                var dd = $('stationDropdown'); var btn = $('stationBtn'); var isOpen = dd.classList.contains('open');
+                closeDropdowns(); if (!isOpen) { dd.classList.add('open'); btn.classList.add('open'); } return;
+            }
+            var option = t.closest('.select-option[data-type]');
+            if (option) {
+                var type = option.dataset.type; var name = option.dataset.name;
+                if (type === 'vehicle') selectVehicle(name); else if (type === 'station') selectStation(name); return;
+            }
+            if (t.closest('[data-action="add-vehicle"]')) { closeDropdowns(); openModal('vehicleModal'); return; }
+            if (t.closest('[data-action="add-station"]')) { closeDropdowns(); openModal('stationModal'); return; }
+            var targetBtn = t.closest('.target-btn');
+            if (targetBtn) {
+                var val = targetBtn.dataset.val;
+                if (val === 'custom') {
+                    $$('.target-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.val === 'custom'); });
+                    $('customTarget').classList.add('show'); $('targetPercent').focus();
+                } else { setTarget(parseInt(val)); }
+                return;
+            }
+            var trigger = t.closest('.accordion-trigger');
+            if (trigger) {
+                var content = trigger.nextElementSibling; var isOpen = content.classList.contains('open');
+                $$('.accordion-content').forEach(function(c) { c.classList.remove('open'); });
+                $$('.accordion-trigger').forEach(function(t) { t.classList.remove('open'); });
+                if (!isOpen) { content.classList.add('open'); trigger.classList.add('open'); }
+                return;
+            }
+            if (!t.closest('.select-wrap')) { closeDropdowns(); }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { closeModal('vehicleModal'); closeModal('stationModal'); closeDropdowns(); closePanel(); }
+        });
+    }
+    
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
+    else { init(); }
+})();
+</script>
+</body>
+</html>
